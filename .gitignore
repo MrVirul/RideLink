@@ -1,0 +1,64 @@
+# macOS / OS generated
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Maven build output
+target/
+**/target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+
+# Maven Wrapper jar (downloaded on first run)
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle build output (if a service adopts Gradle later)
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Logs
+*.log
+logs/
+
+# Spring Initializr generated help file
+HELP.md
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+application-local.properties
+application-local.yml
+application-local.yaml
