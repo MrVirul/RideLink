@@ -1,7 +1,9 @@
 package com.ridelink.account_service.cotroller;
 
+import com.ridelink.account_service.model.Role;
 import com.ridelink.account_service.model.User;
 import com.ridelink.account_service.service.auth.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,12 @@ public class AuthController {
 
     public record LoginRequest(String email, String password) {}
 
+    public record SignupRequest(String name, String email, String password, Role role) {}
+
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody User user){
-        User registeredUser = authService.registerUser(user);
+    public ResponseEntity<User> register(
+            @Valid @RequestBody SignupRequest request){
+        User registeredUser = authService.registerUser(request);
         return ResponseEntity.ok(registeredUser);
     }
 
