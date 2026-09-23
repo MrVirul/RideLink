@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtService jwtService;
 
     public User registerUser(AuthController.SignupRequest request){
         User user = new User();
@@ -39,7 +42,10 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(email, password)
         );
         if(authentication.isAuthenticated()) {
-            return authentication.getName();
+            // Load the user to get full details including role
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            // Generate and return JWT token
+            return jwtService.generateToken(userDetails);
         } else {
             throw new RuntimeException("Invalid login credentials");
         }
