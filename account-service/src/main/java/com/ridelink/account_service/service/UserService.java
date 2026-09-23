@@ -1,5 +1,6 @@
 package com.ridelink.account_service.service;
 
+import com.ridelink.account_service.model.User;
 import com.ridelink.account_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
