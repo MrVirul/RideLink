@@ -1,5 +1,5 @@
 info:
-  name: signup
+  name: signup-driver
   type: http
   seq: 2
 
@@ -12,7 +12,8 @@ http:
       {
         "name": "Virul",
         "email": "virul@gmail.com",
-        "password": "123"
+        "password": "123",
+        "role": "DRIVER"
       }
   auth: inherit
 
