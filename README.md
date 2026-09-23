@@ -6,6 +6,13 @@ RideLink is a ride-hailing platform backend built as a set of independently depl
 Spring Boot microservices that register with a Netflix Eureka service registry and are
 routed through a single API Gateway.
 
+This repository is a backend-only microservices monorepo. `account-service` is fully
+implemented (auth + JWT); `driver-service`, `ride-service`, and `fare-service` are
+scaffolded and start cleanly but have no business endpoints yet.
+
+**Deep-dive technical documentation:** [`docs/`](docs/README.md) — architecture, gateway
+routing, authentication, API reference, database, and operations/troubleshooting.
+
 ## Architecture
 
 ```
@@ -33,30 +40,32 @@ routed through a single API Gateway.
 
 ```
 
-| Service | Port | Database (env vars) | Purpose |
-|---------|------|---------------------|---------|
-| `service-registry` | 8761 | — | Netflix Eureka server (service discovery) |
-| `api-gateway` | 8080 | — | Spring Cloud Gateway (single entry point) |
-| `account-service` | 8081 | `ACCOUNT_DB_*` | User accounts & JWT authentication |
-| `driver-service` | 8082 | `DRIVER_DB_*` | Driver profiles & fleet |
-| `ride-service` | 8083 | `RIDE_DB_*` | Ride lifecycle management |
-| `fare-service` | 8084 | `FARE_DB_*` | Fare calculation logic |
+| Service            | Port | Database (env vars) | Purpose                                   |
+| ------------------ | ---- | ------------------- | ----------------------------------------- |
+| `service-registry` | 8761 | —                   | Netflix Eureka server (service discovery) |
+| `api-gateway`      | 8080 | —                   | Spring Cloud Gateway (single entry point) |
+| `account-service`  | 8081 | `ACCOUNT_DB_*`      | User accounts & JWT authentication        |
+| `driver-service`   | 8082 | `DRIVER_DB_*`       | Driver profiles & fleet                   |
+| `ride-service`     | 8083 | `RIDE_DB_*`         | Ride lifecycle management                 |
+| `fare-service`     | 8084 | `FARE_DB_*`         | Fare calculation logic                    |
 
 ## Tech Stack
 
 - **Java 21**
 - **Spring Boot 4.1.1**
 - **Spring Cloud 2025.1.3** (Eureka, OpenFeign, Gateway)
+- **Spring Cloud Gateway Server Web MVC** — servlet (WebMVC) flavour of the gateway;
+  routes are declared under `spring.cloud.gateway.server.webmvc.routes[]` (see `docs/gateway.md`)
 - **Spring Data JPA** + **Hibernate**
 - **Spring Security** (account-service only, for JWT)
-- **PostgreSQL** (hosted on Neon)
+- **PostgreSQL** (hosted on Neon) — one dedicated database per service
 - **Maven** (via the included Maven Wrapper `./mvnw`) with Lombok
 
 ## Prerequisites
 
 - **JDK 21** (`java -version` → 21)
 - **Maven** — optional; the wrapper (`./mvnw`) downloads Maven on first run
-- **`curl` and `nc`** — required by the helper scripts (`ridelink-startup.sh`, `ridelink-monitor.sh`)
+- **`curl` and `nc`** — required by the helper scripts (`startup.sh`, `monitor.sh`)
 
 ## Project Setup
 
@@ -143,11 +152,11 @@ Or build a single service only:
 
 ### Option A — Automated startup script (recommended)
 
-The `ridelink-startup.sh` script starts every service in the correct order, waits for
+The `startup.sh` script starts every service in the correct order, waits for
 health checks, prints a summary, and stores logs in `logs/`.
 
 ```bash
-./ridelink-startup.sh
+./startup.sh
 ```
 
 - Press **Ctrl+C** to stop all services cleanly.
@@ -159,7 +168,7 @@ While services are running, open the real-time status dashboard (health, PID, CP
 memory, uptime, logs):
 
 ```bash
-./ridelink-monitor.sh
+./monitor.sh
 ```
 
 - `R` refresh · `D` health details · `L` logs · `Q` quit
@@ -169,11 +178,13 @@ memory, uptime, logs):
 **Startup order matters.** Eureka must be up before the other services register.
 
 1. **Service Registry**
+
    ```bash
    cd service-registry && ./mvnw spring-boot:run
    ```
 
 2. **API Gateway**
+
    ```bash
    cd api-gateway && ./mvnw spring-boot:run
    ```
@@ -202,12 +213,12 @@ lsof -ti :8081 | xargs kill -9   # e.g. stop account-service
 
 Every service exposes Spring Boot Actuator health endpoints:
 
-| URL | Description |
-|-----|-------------|
-| `http://localhost:8761/` | Eureka dashboard (registered services) |
-| `http://localhost:<port>/actuator/health` | Health check (includes DB status) |
-| `http://localhost:<port>/actuator/info` | Service information |
-| `http://localhost:<port>/actuator/metrics` | Runtime metrics |
+| URL                                        | Description                            |
+| ------------------------------------------ | -------------------------------------- |
+| `http://localhost:8761/`                   | Eureka dashboard (registered services) |
+| `http://localhost:<port>/actuator/health`  | Health check (includes DB status)      |
+| `http://localhost:<port>/actuator/info`    | Service information                    |
+| `http://localhost:<port>/actuator/metrics` | Runtime metrics                        |
 
 ```bash
 curl http://localhost:8081/actuator/health
@@ -234,14 +245,16 @@ For a single service:
 RideLink/
 ├── pom.xml                     # Parent POM (aggregates all modules)
 ├── mvnw / mvnw.cmd             # Maven wrapper
-├── ridelink-startup.sh         # Start all microservices
-├── ridelink-monitor.sh         # Real-time service dashboard
+├── startup.sh                  # Start all microservices in order (Ctrl+C to stop)
+├── monitor.sh                  # Real-time service dashboard
 ├── service-registry/           # Eureka server
-├── api-gateway/                # Spring Cloud Gateway
-├── account-service/            # Auth, users, JWT
-├── driver-service/             # Drivers
-├── ride-service/               # Rides
-└── fare-service/               # Fares
+├── api-gateway/                # Spring Cloud Gateway (WebMVC)
+├── account-service/            # Auth, users, JWT (implemented)
+├── driver-service/             # Drivers (scaffolded)
+├── ride-service/               # Rides (scaffolded)
+├── fare-service/               # Fares (scaffolded)
+├── api-tests/                  # Bruno API collection
+└── docs/                       # Technical documentation (see docs/README.md)
 ```
 
 Each module is a standard Maven project:
