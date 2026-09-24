@@ -1,0 +1,16 @@
+info:
+  name: Eligible available drivers
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:8080/driver-service/api/v1/driver/eligible
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,23 @@
+info:
+  name: update location
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: http://localhost:8080/driver-service/api/v1/driver/5/location
+  body:
+    type: json
+    data: |-
+      {
+          "latitude": 667.92,
+          "longitude": 79.86
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

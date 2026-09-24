@@ -1,0 +1,22 @@
+info:
+  name: update availability
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: http://localhost:8080/driver-service/api/v1/driver/5/availability
+  body:
+    type: json
+    data: |-
+      {
+        "available": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
