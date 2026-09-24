@@ -1,0 +1,25 @@
+info:
+  name: signup-geeth
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8080/account-service/api/v1/auth/signup
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Geeth",
+        "email": "geeth@gmail.com",
+        "password": "123",
+        "role": "PASSENGER"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
