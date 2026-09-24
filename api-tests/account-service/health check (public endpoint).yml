@@ -1,7 +1,7 @@
 info:
   name: health check (public endpoint)
   type: http
-  seq: 1
+  seq: 3
 
 http:
   method: GET
