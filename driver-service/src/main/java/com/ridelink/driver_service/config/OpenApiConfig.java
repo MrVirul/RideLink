@@ -16,10 +16,8 @@ import org.springframework.context.annotation.Configuration;
                 title = "RideLink - Driver Service API",
                 version = "v1",
                 description = """
-                        Driver and vehicle records. This service is scaffolded: it has no
-                        business endpoints yet, so the spec below only carries the actuator
-                        endpoints. Endpoints are documented automatically as they are added -
-                        no manual spec file to maintain.
+                        Driver and vehicle records. The driver endpoints are documented
+                        automatically from the code - no manual spec file to maintain.
 
                         Operations inherit the `bearerAuth` requirement from this definition,
                         so new endpoints are secured in the spec by default. A public endpoint

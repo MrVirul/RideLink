@@ -6,9 +6,9 @@ All endpoints can be reached two ways:
 - **Via gateway**: `http://localhost:8080/<service-name>/<path>` (gateway strips the
   `<service-name>/` prefix via `stripPrefix(1)` before forwarding)
 
-Only the account service exposes business endpoints today (`driver-service`,
-`ride-service`, `fare-service` are scaffolded and expose nothing yet). Every service exposes
-the Spring Boot Actuator endpoints below.
+`account-service` (auth) and `driver-service` (driver records) expose business endpoints
+today; `ride-service` and `fare-service` are scaffolded and expose nothing yet. Every
+service exposes the Spring Boot Actuator endpoints below.
 
 ## OpenAPI / Swagger UI
 
