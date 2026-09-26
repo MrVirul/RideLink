@@ -15,22 +15,9 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "RideLink - Driver Service API",
                 version = "v1",
-                description = """
-                        Driver and vehicle records. The driver endpoints are documented
-                        automatically from the code - no manual spec file to maintain.
-
-                        Operations inherit the `bearerAuth` requirement from this definition,
-                        so new endpoints are secured in the spec by default. A public endpoint
-                        opts out with an empty `@SecurityRequirements`.
-                        """,
                 contact = @Contact(name = "RideLink", url = "https://github.com/MrVirul/RideLink")
         ),
-        servers = @Server(
-                url = "${app.openapi.servers.base-url}",
-                description = "RideLink API gateway"
-        ),
-        // Spec-wide default: without this, no operation carries a security requirement and
-        // swagger-ui never attaches the token entered in the Authorize dialog.
+        servers = @Server(url = "${app.openapi.servers.base-url}"),
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
@@ -38,16 +25,7 @@ import org.springframework.context.annotation.Configuration;
         type = SecuritySchemeType.HTTP,
         scheme = "bearer",
         bearerFormat = "JWT",
-        in = SecuritySchemeIn.HEADER,
-        description = """
-                JWT issued by the account service (`POST /api/v1/auth/login`).
-                Paste the raw token only.
-
-                Note: this service does not enforce authentication yet - the
-                `hasRole("DRIVER")` rule currently lives in the account service.
-                The scheme is declared here so endpoints are ready for the gateway
-                JWT filter (issue #36).
-                """
+        in = SecuritySchemeIn.HEADER
 )
 public class OpenApiConfig {
 }
