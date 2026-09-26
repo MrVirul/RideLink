@@ -46,9 +46,13 @@ token you paste there is only attached to operations that declare a security req
 2. Paste it into the **Authorize** dialog.
 3. Secured operations show a lock icon and send `Authorization: Bearer <token>`.
 
-The two public operations under `/api/v1/auth` carry an empty `@SecurityRequirements` and
-therefore opt out — no lock icon, no token needed. New endpoints are secured in the spec by
-default; annotate a genuinely public one with an empty `@SecurityRequirements`.
+The two public operations under `/api/v1/auth` are listed in `OpenApiConfig.PUBLIC_PATHS`,
+which clears the requirement for them, so they show no lock icon and need no token. Add a path
+to that list when a new public endpoint is introduced.
+
+All OpenAPI metadata lives in each service's `OpenApiConfig` class, so the controllers carry no
+Swagger annotations. springdoc still derives the paths, methods and payload schemas from the
+code itself, which is why the request and response shapes in the UI stay in sync automatically.
 
 ### Pointing the docs at another host
 
