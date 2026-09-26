@@ -7,6 +7,6 @@ Deep-dive technical documentation for the RideLink backend microservices monorep
 | [Architecture](architecture.md) | Service topology, request flow through the gateway, discovery & load balancing |
 | [API Gateway](gateway.md) | WebMVC gateway routing model, route table, adding a new service |
 | [Authentication & Security](authentication.md) | JWT flow, Spring Security configuration, signup/login behaviour |
-| [API Reference](api.md) | Contracts for the HTTP endpoints (request/response payloads) |
+| [API Reference](api.md) | Contracts for the HTTP endpoints (request/response payloads), OpenAPI & Swagger UI |
 | [Database](database.md) | Per-service PostgreSQL setup, environment variables, schema |
 | [Operations](operations.md) | Running, monitoring, logs, and troubleshooting |

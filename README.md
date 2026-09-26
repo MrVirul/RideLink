@@ -58,6 +58,8 @@ routing, authentication, API reference, database, and operations/troubleshooting
   routes are declared under `spring.cloud.gateway.server.webmvc.routes[]` (see `docs/gateway.md`)
 - **Spring Data JPA** + **Hibernate**
 - **Spring Security** (account-service only, for JWT)
+- **springdoc-openapi 3.1.1** — OpenAPI 3 spec + Swagger UI, generated at runtime from
+  annotations (see [API docs](#api-docs-swagger-ui))
 - **PostgreSQL** (hosted on Neon) — one dedicated database per service
 - **Maven** (via the included Maven Wrapper `./mvnw`) with Lombok
 
@@ -224,6 +226,37 @@ Every service exposes Spring Boot Actuator health endpoints:
 curl http://localhost:8081/actuator/health
 # {"status":"UP","components":{...,"db":{"status":"UP",...}}}
 ```
+
+## API docs (Swagger UI)
+
+The OpenAPI 3 document is generated at runtime by
+[springdoc-openapi](https://springdoc.org/) from the annotations on each controller, so
+there is no checked-in spec file to keep in sync.
+
+**Start here — the aggregated UI on the gateway**, which lists every service in a dropdown:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+Each service also serves its own UI on its own port:
+
+| Service            | Swagger UI                             | OpenAPI JSON                                    |
+| ------------------ | -------------------------------------- | ----------------------------------------------- |
+| `api-gateway`      | `http://localhost:8080/swagger-ui.html` | `http://localhost:8080/v3/api-docs`             |
+| `account-service`  | `http://localhost:8081/swagger-ui.html` | `http://localhost:8081/v3/api-docs`             |
+| `driver-service`   | `http://localhost:8082/swagger-ui.html` | `http://localhost:8082/v3/api-docs`             |
+| `ride-service`     | `http://localhost:8083/swagger-ui.html` | `http://localhost:8083/v3/api-docs`             |
+| `fare-service`     | `http://localhost:8084/swagger-ui.html` | `http://localhost:8084/v3/api-docs`             |
+
+Through the gateway, a service spec is also reachable as
+`http://localhost:8080/<service>/v3/api-docs`, but the per-service **UI** is not — swagger-ui
+always requests its own configuration from the root path `/v3/api-docs/swagger-config`, which
+the gateway does not route. That is why the aggregated UI above is the one to use.
+
+Every spec advertises the gateway as its server, so **Try it out** calls
+`http://localhost:8080/<service>/...` just like a real client. To point the docs at another
+host, set `OPENAPI_SERVERS_BASE_URL` (see `docs/api.md`).
 
 ## Testing
 

@@ -30,13 +30,10 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers("/api/v1/auth/**", "/actuator/health/**", "/actuator/info/**", "/error").permitAll()
-                        // Driver-only endpoints
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers("/api/v1/driver/**").hasRole("DRIVER")
-                        // Passenger-only endpoints
                         .requestMatchers("/api/v1/passenger/**").hasRole("PASSENGER")
-                        // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
