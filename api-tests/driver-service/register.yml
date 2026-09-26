@@ -1,0 +1,27 @@
+info:
+  name: register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/driver-service/api/v1/driver
+  body:
+    type: json
+    data: |-
+      {
+        "userId": 25,
+        "vehicleNumberPlate": "CAB-1234",
+        "latitude": 6.8649,
+        "longitude": 79.8997,
+        "serviceArea": "C",
+        "isAvailable": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
