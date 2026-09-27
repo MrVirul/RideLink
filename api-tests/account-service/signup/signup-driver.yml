@@ -12,7 +12,7 @@ http:
       {
         "name": "Virul",
         "email": "virul@gmail.com",
-        "password": "123",
+        "password": "Virul@123",
         "role": "DRIVER"
       }
   auth: inherit
