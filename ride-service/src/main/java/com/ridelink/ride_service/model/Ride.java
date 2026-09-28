@@ -54,4 +54,10 @@ public class Ride {
 
     @Column(name = "ride_completed_time")
     private LocalDateTime completedTime;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Column(name = "cancelled_by")
+    private Long cancelledBy;
 }
