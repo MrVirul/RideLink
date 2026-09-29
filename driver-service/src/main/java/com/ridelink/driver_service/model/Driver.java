@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +34,12 @@ public class Driver {
     @Column(name = "service_area", nullable = false)
     private String serviceArea;
 
-    @Column(name = "availability", nullable = false)
+    @Column(name = "availability")
     private boolean isAvailable = true;
+
+    @Column(name = "accuracy")
+    private Double accuracy;
+
+    @Column(name = "last_online_at")
+    private LocalDateTime lastOnlineAt;
 }

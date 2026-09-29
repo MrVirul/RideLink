@@ -30,18 +30,20 @@ public class DriverController {
     @PutMapping("/{id}/location")
     public ResponseEntity<Driver> updateLocation(
             @PathVariable Integer id,
-            @RequestBody DriverDto.LocationRequest request) {
-        Driver updated = driverService.updateLocation(id, request.getLatitude(), request.getLongitude());
+            @Valid @RequestBody DriverDto.LocationRequest request) {
+
+        Driver updated = driverService.updateLocation(id, request.getLatitude(), request.getLongitude(),
+                request.getAccuracy());
         return ResponseEntity.ok(updated);
     }
 
     @PatchMapping("/{id}/availability")
-        public ResponseEntity<Driver> updateAvailability(
-                @PathVariable Integer id,
-                @RequestBody DriverDto.AvailabilityRequest request) {
-            Driver updated = driverService.updateAvailability(id, request.getAvailable());
-            return ResponseEntity.ok(updated);
-        }
+    public ResponseEntity<Driver> updateAvailability(
+            @PathVariable Integer id,
+            @Valid @RequestBody DriverDto.AvailabilityRequest request) {
+        Driver updated = driverService.updateAvailability(id, request.getAvailable());
+        return ResponseEntity.ok(updated);
+    }
 
     @GetMapping("/eligible")
     public ResponseEntity<List<Driver>> getEligibleDrivers() {
