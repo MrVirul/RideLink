@@ -44,9 +44,8 @@ public class DriverController {
         }
 
     @GetMapping("/eligible")
-    public ResponseEntity<List<Driver>> getEligibleDrivers(
-            @RequestParam(required = false) String serviceArea) {
-        List<Driver> drivers = driverService.getEligibleAvailableDrivers(serviceArea);
+    public ResponseEntity<List<Driver>> getEligibleDrivers() {
+        List<Driver> drivers = driverService.getEligibleAvailableDrivers();
         return ResponseEntity.ok(drivers);
     }
 }

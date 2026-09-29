@@ -33,10 +33,7 @@ public class DriverService {
         return driverRepository.save(driver);
     }
 
-    public List<Driver> getEligibleAvailableDrivers(String serviceArea){
-        if(serviceArea != null && !serviceArea.isEmpty()){
-            return driverRepository.findByIsAvailableAndServiceArea(true,serviceArea);
-        }
+    public List<Driver> getEligibleAvailableDrivers(){
         return driverRepository.findByIsAvailable(true);
     }
 }
