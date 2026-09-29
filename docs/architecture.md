@@ -17,7 +17,7 @@ single API Gateway.
             ▼                      ▼                       ▼
  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
  │ account :8081    │   │ driver :8082      │   │ ride :8083        │
- │ (implemented)    │   │ (scaffolded)      │   │ (scaffolded)      │
+ │ (implemented)    │   │ (implemented)     │   │ (implemented)     │
  └────────┬─────────┘   └────────┬─────────┘   └────────┬─────────┘
           │                     │                       │
           ▼                     ▼                       ▼
@@ -37,8 +37,8 @@ single API Gateway.
 | `service-registry` | 8761 | `service-registry` | Eureka server (discovery)              | Implemented     |
 | `api-gateway`      | 8080 | `api-gateway`      | Spring Cloud Gateway (single entry point) | Implemented  |
 | `account-service`  | 8081 | `account-service`  | User accounts, auth, JWT               | Implemented     |
-| `driver-service`   | 8082 | `driver-service`   | Driver profiles & fleet                | Scaffolded only |
-| `ride-service`     | 8083 | `ride-service`     | Ride lifecycle                         | Scaffolded only |
+| `driver-service`   | 8082 | `driver-service`   | Driver profiles & fleet                | Implemented     |
+| `ride-service`     | 8083 | `ride-service`     | Ride lifecycle                         | Implemented     |
 | `fare-service`     | 8084 | `fare-service`     | Fare calculation                       | Scaffolded only |
 
 > *Scaffolded* means the service directory, Maven build, Eureka registration and database

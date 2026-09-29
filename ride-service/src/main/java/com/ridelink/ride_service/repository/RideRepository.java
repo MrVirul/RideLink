@@ -2,7 +2,11 @@ package com.ridelink.ride_service.repository;
 
 import com.ridelink.ride_service.model.Ride;
 import com.ridelink.ride_service.model.Status;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -12,5 +16,9 @@ import java.util.Optional;
 public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     Optional<Ride> findFirstByUserIdAndStatusInOrderByRequestedTimeDesc(Long userId, Collection<Status> statuses);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Ride r where r.id = :id")
+    Optional<Ride> findByIdForUpdate(@Param("id") Integer id);
 
 }
