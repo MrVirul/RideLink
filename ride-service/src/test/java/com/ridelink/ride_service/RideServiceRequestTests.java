@@ -123,8 +123,8 @@ class RideServiceRequestTests {
 
         verify(rideRepository).findFirstByUserIdAndStatusInOrderByRequestedTimeDesc(
                 eq(PASSENGER_ID), captor.capture());
-        assertEquals(List.of(Status.SEARCHING, Status.ONGOING), captor.getValue(),
-                "SEARCHING and ONGOING are the only statuses that should block a new request");
+        assertEquals(List.of(Status.SEARCHING, Status.ASSIGNED, Status.ONGOING), captor.getValue(),
+                "an assigned ride still blocks a second request from the same passenger");
     }
 
     @Test

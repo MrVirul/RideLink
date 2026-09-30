@@ -179,6 +179,44 @@ class RideControllerContractTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void assignReturnsTheAssignedRide() throws Exception {
+        when(rideService.assignDriver(RIDE_ID)).thenReturn(assignedRide());
+
+        mockMvc.perform(post("/api/v1/ride/42/assign"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RIDE_ID))
+                .andExpect(jsonPath("$.status").value("ASSIGNED"))
+                .andExpect(jsonPath("$.driverId").value(9))
+                .andExpect(content().string(containsString("assignedAt")));
+    }
+
+    @Test
+    void assignConflictsWhenTheRideIsNotSearching() throws Exception {
+        when(rideService.assignDriver(RIDE_ID))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "cannot be assigned from state ONGOING"));
+
+        mockMvc.perform(post("/api/v1/ride/42/assign"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void assignConflictsWhenNoDriverIsAvailable() throws Exception {
+        when(rideService.assignDriver(RIDE_ID))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "No drivers are available"));
+
+        mockMvc.perform(post("/api/v1/ride/42/assign"))
+                .andExpect(status().isConflict());
+    }
+
+    private Ride assignedRide() {
+        Ride ride = searchingRide();
+        ride.setStatus(Status.ASSIGNED);
+        ride.setDriverId(9L);
+        ride.setAssignedAt(LocalDateTime.now());
+        return ride;
+    }
+
     private Ride searchingRide() {
         Ride ride = new Ride();
         ride.setId(RIDE_ID);
