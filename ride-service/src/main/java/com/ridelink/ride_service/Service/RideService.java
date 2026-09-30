@@ -1,5 +1,6 @@
 package com.ridelink.ride_service.Service;
 
+import com.ridelink.ride_service.client.AvailableDriver;
 import com.ridelink.ride_service.dto.RideDto;
 import com.ridelink.ride_service.model.Ride;
 import com.ridelink.ride_service.model.RideCancellation;
@@ -19,17 +20,21 @@ import java.util.List;
 @Service
 public class RideService {
 
-    private static final List<Status> ACTIVE_STATUSES = List.of(Status.SEARCHING, Status.ONGOING);
+    private static final List<Status> ACTIVE_STATUSES = List.of(Status.SEARCHING, Status.ASSIGNED, Status.ONGOING);
 
-    private static final List<Status> PASSENGER_CANCELLABLE_STATUSES = List.of(Status.SEARCHING, Status.ONGOING);
+    private static final List<Status> PASSENGER_CANCELLABLE_STATUSES =
+            List.of(Status.SEARCHING, Status.ASSIGNED, Status.ONGOING);
 
-    private static final List<Status> DRIVER_CANCELLABLE_STATUSES = List.of(Status.SEARCHING);
+    private static final List<Status> DRIVER_CANCELLABLE_STATUSES = List.of(Status.SEARCHING, Status.ASSIGNED);
 
     @Autowired
     private RideRepository rideRepository;
 
     @Autowired
     private RideCancellationRepository rideCancellationRepository;
+
+    @Autowired
+    private DriverAvailabilityService driverAvailabilityService;
 
     @Transactional
     public Ride createRideRequest(Long passengerId, RideDto.RideRequest request) {
@@ -95,6 +100,29 @@ public class RideService {
         rideCancellationRepository.save(cancellation);
 
         return saved;
+    }
+
+    @Transactional
+    public Ride assignDriver(Integer rideId) {
+        Ride ride = rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Ride " + rideId + " not found"));
+
+        if (ride.getStatus() != Status.SEARCHING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ride " + rideId + " cannot be assigned from state " + ride.getStatus());
+        }
+
+        List<AvailableDriver> available = driverAvailabilityService.findAvailableDrivers();
+        if (available.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "No drivers are available to take ride " + rideId);
+        }
+
+        ride.setDriverId(available.getFirst().userId());
+        ride.setStatus(Status.ASSIGNED);
+        ride.setAssignedAt(LocalDateTime.now());
+        return rideRepository.save(ride);
     }
 
     @Transactional(readOnly = true)
