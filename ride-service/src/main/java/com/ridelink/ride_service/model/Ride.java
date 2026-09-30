@@ -49,6 +49,9 @@ public class Ride {
     @Column(name = "ride_requested_time")
     private LocalDateTime requestedTime;
 
+    @Column(name = "assigned_at")
+    private LocalDateTime assignedAt;
+
     @Column(name = "ride_start_time")
     private LocalDateTime startTime;
 
