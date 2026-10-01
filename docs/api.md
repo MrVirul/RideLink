@@ -157,6 +157,69 @@ Content-Type: application/json
 eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUFFTU0VOR0VSIiwic3ViIjoidmlydWxAZ21haWwuY29tIn0....
 ```
 
+## GET /api/v1/users/me
+
+Retrieves the authenticated user's profile information.
+
+**Request**
+
+```http
+GET /account-service/api/v1/users/me HTTP/1.1
+Host: localhost:8080
+Authorization: Bearer <token>
+```
+
+**Response — `200 OK`** (a `UserResponse` projection)
+
+```json
+{
+  "id": 1,
+  "name": "Virul",
+  "email": "virul@gmail.com",
+  "role": "PASSENGER"
+}
+```
+
+## PUT /api/v1/users/me
+
+Updates the authenticated user's profile information.
+
+**Request**
+
+```http
+PUT /account-service/api/v1/users/me HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{"name": "New Name"}
+```
+
+**Response — `200 OK`** (the updated `UserResponse`)
+
+## PUT /api/v1/users/me/password
+
+Securely changes the authenticated user's password.
+
+**Request**
+
+```http
+PUT /account-service/api/v1/users/me/password HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{"oldPassword": "123", "newPassword": "newSecurePassword"}
+```
+
+**Response — `200 OK`** (`Password updated successfully`)
+
+**Errors**
+
+| Status | When                                                        |
+| ------ | ----------------------------------------------------------- |
+| `400`  | Invalid old password                                        |
+
 ## Ride endpoints
 
 All four ride endpoints read the caller's account id from an `X-User-Id` header, which is a
