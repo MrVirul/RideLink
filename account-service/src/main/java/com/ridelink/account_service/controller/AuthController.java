@@ -1,4 +1,4 @@
-package com.ridelink.account_service.cotroller;
+package com.ridelink.account_service.controller;
 
 import com.ridelink.account_service.model.Role;
 import com.ridelink.account_service.model.User;

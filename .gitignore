@@ -62,3 +62,9 @@ HELP.md
 application-local.properties
 application-local.yml
 application-local.yaml
+
+# Antigravity / Agents
+.agents/
+
+# Custom startup script
+startup.ps1

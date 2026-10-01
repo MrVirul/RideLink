@@ -1,6 +1,6 @@
 package com.ridelink.account_service.service.auth;
 
-import com.ridelink.account_service.cotroller.AuthController;
+import com.ridelink.account_service.controller.AuthController;
 import com.ridelink.account_service.model.Role;
 import com.ridelink.account_service.model.User;
 import com.ridelink.account_service.repository.UserRepository;
