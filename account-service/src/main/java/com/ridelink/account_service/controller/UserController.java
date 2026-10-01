@@ -4,6 +4,7 @@ import com.ridelink.account_service.model.User;
 import com.ridelink.account_service.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,9 +18,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    public record UpdateProfileRequest(@NotBlank String name) {}
+    public record UpdateProfileRequest(
+            @NotBlank 
+            @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters") 
+            String name) {}
 
-    public record UpdatePasswordRequest(@NotBlank String oldPassword, @NotBlank String newPassword) {}
+    public record UpdatePasswordRequest(
+            @NotBlank String oldPassword, 
+            @NotBlank 
+            @Size(min = 6, message = "New password must be at least 6 characters long") 
+            String newPassword) {}
 
     @GetMapping("/me")
     public ResponseEntity<AuthController.UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
