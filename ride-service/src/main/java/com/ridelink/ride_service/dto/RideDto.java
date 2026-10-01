@@ -180,6 +180,9 @@ public class RideDto {
         @Schema(description = "Server-side timestamp of when the ride was requested", example = "2026-09-28T10:15:30")
         private LocalDateTime requestedTime;
 
+        @Schema(description = "When a driver was assigned, null until then", example = "2026-09-28T10:17:04")
+        private LocalDateTime assignedAt;
+
         @Schema(description = "When the ride started, null while searching", example = "2026-09-28T10:19:02")
         private LocalDateTime startTime;
 
@@ -199,12 +202,13 @@ public class RideDto {
                                    String pickupLocation, String dropOffLocation, double tripDistance,
                                    LocalDateTime requestedTime, LocalDateTime startTime, LocalDateTime completedTime) {
             this(id, passengerId, driverId, status, pickupLocation, dropOffLocation, tripDistance,
-                    requestedTime, startTime, completedTime, null, null);
+                    requestedTime, null, startTime, completedTime, null, null);
         }
 
         public RideRequestResponse(Integer id, Long passengerId, Long driverId, Status status,
                                    String pickupLocation, String dropOffLocation, double tripDistance,
-                                   LocalDateTime requestedTime, LocalDateTime startTime, LocalDateTime completedTime,
+                                   LocalDateTime requestedTime, LocalDateTime assignedAt,
+                                   LocalDateTime startTime, LocalDateTime completedTime,
                                    LocalDateTime cancelledAt, Long cancelledBy) {
             this.id = id;
             this.passengerId = passengerId;
@@ -214,6 +218,7 @@ public class RideDto {
             this.dropOffLocation = dropOffLocation;
             this.tripDistance = tripDistance;
             this.requestedTime = requestedTime;
+            this.assignedAt = assignedAt;
             this.startTime = startTime;
             this.completedTime = completedTime;
             this.cancelledAt = cancelledAt;
@@ -282,6 +287,14 @@ public class RideDto {
 
         public void setRequestedTime(LocalDateTime requestedTime) {
             this.requestedTime = requestedTime;
+        }
+
+        public LocalDateTime getAssignedAt() {
+            return assignedAt;
+        }
+
+        public void setAssignedAt(LocalDateTime assignedAt) {
+            this.assignedAt = assignedAt;
         }
 
         public LocalDateTime getStartTime() {

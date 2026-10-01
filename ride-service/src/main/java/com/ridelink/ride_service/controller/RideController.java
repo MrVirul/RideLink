@@ -46,6 +46,13 @@ public class RideController {
         return ResponseEntity.ok(toResponse(ride));
     }
 
+    @PostMapping("/{id}/assign")
+    public ResponseEntity<RideDto.RideRequestResponse> assignDriver(
+            @PathVariable Integer id) {
+        Ride assigned = rideService.assignDriver(id);
+        return ResponseEntity.ok(toResponse(assigned));
+    }
+
     @PostMapping("/{id}/cancel")
     public ResponseEntity<RideDto.RideRequestResponse> cancelRide(
             @PathVariable Integer id,
@@ -79,6 +86,7 @@ public class RideController {
                 ride.getDropOffLocation(),
                 ride.getTripDistance(),
                 ride.getRequestedTime(),
+                ride.getAssignedAt(),
                 ride.getStartTime(),
                 ride.getCompletedTime(),
                 ride.getCancelledAt(),
