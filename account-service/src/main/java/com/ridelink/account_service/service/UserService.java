@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class UserService implements UserDetailsService {
 
@@ -31,6 +33,7 @@ public class UserService implements UserDetailsService {
         com.ridelink.account_service.model.User user = getUserProfile(email);
         if (newName != null && !newName.trim().isEmpty()) {
             user.setName(newName);
+            log.info("AUDIT: User profile updated for email: {}", email);
         }
         return userRepository.save(user);
     }
@@ -38,9 +41,11 @@ public class UserService implements UserDetailsService {
     public void updatePassword(String email, String oldPassword, String newPassword) {
         com.ridelink.account_service.model.User user = getUserProfile(email);
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            log.warn("AUDIT: Failed password update attempt for email: {}", email);
             throw new RuntimeException("Incorrect old password");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        log.info("AUDIT: Password successfully updated for email: {}", email);
     }
 }
