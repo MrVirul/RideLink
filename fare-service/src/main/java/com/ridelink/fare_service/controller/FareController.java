@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/fare")
+@RequestMapping("/api/fares")
 public class FareController {
 
     private final FareService fareService;
@@ -23,6 +23,6 @@ public class FareController {
     @PostMapping("/estimate")
     public ResponseEntity<FareEstimateResponse> estimateFare(
             @Valid @RequestBody FareEstimateRequest request) {
-        return ResponseEntity.ok(fareService.estimateFare(request));
+        return ResponseEntity.ok(fareService.calculateEstimate(request));
     }
 }
