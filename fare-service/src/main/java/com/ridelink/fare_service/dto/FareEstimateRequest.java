@@ -1,12 +1,26 @@
 package com.ridelink.fare_service.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+public class FareEstimateRequest {
 
-import java.math.BigDecimal;
+    private Long rideId;
+    private double distanceKm;
 
-public record FareEstimateRequest(
-        @NotNull @DecimalMin("0.0") BigDecimal distanceKm,
-        @NotNull @Min(0) Integer durationMinutes) {
+    public FareEstimateRequest() {
+    }
+
+    public Long getRideId() {
+        return rideId;
+    }
+
+    public void setRideId(Long rideId) {
+        this.rideId = rideId;
+    }
+
+    public double getDistanceKm() {
+        return distanceKm;
+    }
+
+    public void setDistanceKm(double distanceKm) {
+        this.distanceKm = distanceKm;
+    }
 }
