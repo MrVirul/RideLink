@@ -4,6 +4,7 @@ import com.ridelink.account_service.model.User;
 import com.ridelink.account_service.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,23 +12,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/users")
-public class UserController {
+@RequestMapping("/api/v1/accounts")
+public class AccountController {
 
     @Autowired
     private UserService userService;
 
-    public record UpdateProfileRequest(@NotBlank String name) {}
+    public record UpdateProfileRequest(
+            @NotBlank 
+            @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters") 
+            String name) {}
 
-    public record UpdatePasswordRequest(@NotBlank String oldPassword, @NotBlank String newPassword) {}
+    public record UpdatePasswordRequest(
+            @NotBlank String oldPassword, 
+            @NotBlank 
+            @Size(min = 6, message = "New password must be at least 6 characters long") 
+            String newPassword) {}
 
-    @GetMapping("/me")
-    public ResponseEntity<AuthController.UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/profile")
+    public ResponseEntity<AuthController.UserResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUserProfile(userDetails.getUsername());
         return ResponseEntity.ok(AuthController.UserResponse.from(user));
     }
 
-    @PutMapping("/me")
+    @PutMapping("/profile")
     public ResponseEntity<AuthController.UserResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest request) {
@@ -35,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(AuthController.UserResponse.from(updatedUser));
     }
 
-    @PutMapping("/me/password")
+    @PutMapping("/profile/password")
     public ResponseEntity<String> updatePassword(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdatePasswordRequest request) {

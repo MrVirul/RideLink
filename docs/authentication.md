@@ -15,12 +15,13 @@ table and implements Spring Security's `UserDetails`:
 | `name`     | `name`       | `NOT NULL`                         | Body field                      |
 | `email`    | `email`      | `NOT NULL`, `UNIQUE`, `@Email`     | Used as the security principal  |
 | `password` | `password`   | `NOT NULL`                         | Stored BCrypt-hashed            |
+| `role`     | `role`       | `NOT NULL`                         | `Enum` (PASSENGER, DRIVER, ADMIN)|
 
 `UserDetails` mapping:
 
 - `getUsername()` → `email`
 - `getPassword()` → stored (hashed) password
-- `getAuthorities()` → empty list
+- `getAuthorities()` → `ROLE_` + `role.name()` (e.g. `ROLE_PASSENGER`)
 - Account state flags → all `true`
 
 ## Security configuration (`security/SecurityConfig.java`)
@@ -52,6 +53,7 @@ table and implements Spring Security's `UserDetails`:
 3. If subject present and no auth already in context, loads `UserDetails`, validates token
    (`JwtService.isTokenValid`) and sets a `UsernamePasswordAuthenticationToken` in the
    `SecurityContextHolder`.
+4. Wraps the parsing process in a `try-catch` block to handle deleted users or invalid tokens gracefully (surfacing `403 Forbidden` instead of crashing with `500`).
 
 ## `JwtService`
 
@@ -61,46 +63,65 @@ table and implements Spring Security's `UserDetails`:
 - `generateToken(...)`, `extractUsername(...)`, `isTokenValid(...)` implemented with JJWT's
   `Jwts.builder()` / `Jwts.parser()` API.
 
-## Auth endpoints (`cotroller/AuthController.java`)
-
-> Note: the package is literally named `...cotroller` (typo in the current tree).
+## Auth endpoints (`controller/AuthController.java`)
 
 ### `POST /api/v1/auth/signup`
 
-Request body is a `User` JSON object:
+Request body uses a `SignupRequest` record with proper `@Valid` annotations:
 
 ```json
 {
   "name": "Virul",
   "email": "virul@gmail.com",
-  "password": "123"
+  "password": "securepassword123",
+  "role": "PASSENGER"
 }
 ```
 
 Flow: `AuthService.registerUser()` BCrypt-encodes the password, then saves via the
-repository. Response `200 OK` returns the saved entity (including the hashed `password` and
-`id`). A duplicate `email` violates the unique constraint and results in `500`.
+repository. 
 
 ### `POST /api/v1/auth/login`
 
-Request body:
+Request body uses a `LoginRequest` record:
 
 ```json
 {
   "email": "virul@gmail.com",
-  "password": "123"
+  "password": "securepassword123"
 }
 ```
 
 Flow: `AuthService.authenticateAndGetToken()` attempts `authenticationManager.authenticate()`
-(BCrypt verified via the DAO provider). If successful it currently returns the placeholder
-string `"JWT_TOEKN Generated Successfully"` — the real token generation in `JwtService`
-(`generateToken`) is implemented but **not yet wired into the login response**. Invalid
-credentials throw `RuntimeException` (surfaces as `500`).
+(BCrypt verified via the DAO provider). If successful it generates a real JWT using `JwtService.generateToken` and returns it as a plain string. Invalid credentials surface as a `403 Forbidden`.
 
-## Current gaps / known issues
+## Account endpoints (`controller/AccountController.java`)
 
-- Login does **not** return a real JWT yet (see above).
-- No `@Valid`/validation annotations on the controller methods; empty or partially-missing
-  bodies either fail Jackson binding (`400`) or error at the database layer (`500`).
-- The response includes the hashed password (no `@JsonIgnore`/DTO).
+Manages user profile data and passwords for the currently authenticated user. All requests require a valid JWT token.
+
+### `GET /api/v1/accounts/profile`
+Fetches the currently authenticated user's profile information based on their JWT token.
+Returns a `UserResponse` containing `id`, `name`, `email`, and `role`.
+
+### `PUT /api/v1/accounts/profile`
+Updates the profile information. Role manipulation is strictly ignored by the payload (preventing privilege escalation).
+Payload uses `UpdateProfileRequest`:
+```json
+{
+  "name": "New Name" // Required, 2-50 chars
+}
+```
+
+### `PUT /api/v1/accounts/profile/password`
+Updates the authenticated user's password securely.
+Payload uses `UpdatePasswordRequest`:
+```json
+{
+  "oldPassword": "current_password",
+  "newPassword": "new_password" // Required, min 6 chars
+}
+```
+
+## Validation & Audit Logging
+- **Validation**: Payload structures strictly enforce data constraints (`@NotBlank`, `@Email`, `@Size` for password length >= 6 and name length >= 2). Invalid requests will return a `400 Bad Request`.
+- **Audit Logging**: All critical account lifecycle events (Signup, Login success/failure, Profile updates, Password updates) are meticulously logged via SLF4J (grep for `AUDIT:` prefix) to standard output and `logs/account-service.log`.

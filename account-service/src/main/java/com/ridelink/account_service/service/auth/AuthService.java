@@ -11,7 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -34,20 +36,29 @@ public class AuthService {
         Role role = request.role() != null ? request.role() : Role.PASSENGER;
         user.setRole(role);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.info("AUDIT: New user registered with email: {}, role: {}", savedUser.getEmail(), savedUser.getRole());
+        return savedUser;
     }
 
     public String authenticateAndGetToken(String email, String password){
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
-        if(authentication.isAuthenticated()) {
-            // Load the user to get full details including role
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            // Generate and return JWT token
-            return jwtService.generateToken(userDetails);
-        } else {
-            throw new RuntimeException("Invalid login credentials");
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+            if(authentication.isAuthenticated()) {
+                // Load the user to get full details including role
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                log.info("AUDIT: Successful login for email: {}", email);
+                // Generate and return JWT token
+                return jwtService.generateToken(userDetails);
+            } else {
+                log.warn("AUDIT: Failed login attempt (unauthenticated) for email: {}", email);
+                throw new RuntimeException("Invalid login credentials");
+            }
+        } catch (Exception e) {
+            log.warn("AUDIT: Failed login attempt (exception) for email: {}", email);
+            throw e;
         }
     }
 }
