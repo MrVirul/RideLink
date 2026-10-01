@@ -12,8 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/users")
-public class UserController {
+@RequestMapping("/api/v1/accounts")
+public class AccountController {
 
     @Autowired
     private UserService userService;
@@ -29,13 +29,13 @@ public class UserController {
             @Size(min = 6, message = "New password must be at least 6 characters long") 
             String newPassword) {}
 
-    @GetMapping("/me")
-    public ResponseEntity<AuthController.UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/profile")
+    public ResponseEntity<AuthController.UserResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUserProfile(userDetails.getUsername());
         return ResponseEntity.ok(AuthController.UserResponse.from(user));
     }
 
-    @PutMapping("/me")
+    @PutMapping("/profile")
     public ResponseEntity<AuthController.UserResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest request) {
@@ -43,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(AuthController.UserResponse.from(updatedUser));
     }
 
-    @PutMapping("/me/password")
+    @PutMapping("/profile/password")
     public ResponseEntity<String> updatePassword(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdatePasswordRequest request) {

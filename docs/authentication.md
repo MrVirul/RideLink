@@ -94,3 +94,34 @@ Request body uses a `LoginRequest` record:
 
 Flow: `AuthService.authenticateAndGetToken()` attempts `authenticationManager.authenticate()`
 (BCrypt verified via the DAO provider). If successful it generates a real JWT using `JwtService.generateToken` and returns it as a plain string. Invalid credentials surface as a `403 Forbidden`.
+
+## Account endpoints (`controller/AccountController.java`)
+
+Manages user profile data and passwords for the currently authenticated user. All requests require a valid JWT token.
+
+### `GET /api/v1/accounts/profile`
+Fetches the currently authenticated user's profile information based on their JWT token.
+Returns a `UserResponse` containing `id`, `name`, `email`, and `role`.
+
+### `PUT /api/v1/accounts/profile`
+Updates the profile information. Role manipulation is strictly ignored by the payload (preventing privilege escalation).
+Payload uses `UpdateProfileRequest`:
+```json
+{
+  "name": "New Name" // Required, 2-50 chars
+}
+```
+
+### `PUT /api/v1/accounts/profile/password`
+Updates the authenticated user's password securely.
+Payload uses `UpdatePasswordRequest`:
+```json
+{
+  "oldPassword": "current_password",
+  "newPassword": "new_password" // Required, min 6 chars
+}
+```
+
+## Validation & Audit Logging
+- **Validation**: Payload structures strictly enforce data constraints (`@NotBlank`, `@Email`, `@Size` for password length >= 6 and name length >= 2). Invalid requests will return a `400 Bad Request`.
+- **Audit Logging**: All critical account lifecycle events (Signup, Login success/failure, Profile updates, Password updates) are meticulously logged via SLF4J (grep for `AUDIT:` prefix) to standard output and `logs/account-service.log`.
