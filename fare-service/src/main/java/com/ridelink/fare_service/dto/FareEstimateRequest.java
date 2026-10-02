@@ -4,6 +4,7 @@ public class FareEstimateRequest {
 
     private Long rideId;
     private double distanceKm;
+    private long durationMinutes;  // ADD THIS FIELD
 
     public FareEstimateRequest() {
     }
@@ -22,5 +23,14 @@ public class FareEstimateRequest {
 
     public void setDistanceKm(double distanceKm) {
         this.distanceKm = distanceKm;
+    }
+
+    // ADD THESE METHODS
+    public long getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(long durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 }
