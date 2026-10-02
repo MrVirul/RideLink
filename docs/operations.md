@@ -4,7 +4,7 @@ How to run, monitor, and troubleshoot the RideLink platform.
 
 ## Prerequisites
 
-- JDK 21
+- JDK 25
 - Maven (optional — the included wrapper `./mvnw` downloads Maven on first run)
 - `curl` and `nc` (used by the helper scripts)
 

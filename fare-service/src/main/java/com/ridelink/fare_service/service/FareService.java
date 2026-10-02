@@ -4,34 +4,18 @@ import com.ridelink.fare_service.dto.FareEstimateRequest;
 import com.ridelink.fare_service.dto.FareEstimateResponse;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 @Service
 public class FareService {
 
-    private static final BigDecimal BASE_FARE = new BigDecimal("100.00");
-    private static final BigDecimal FARE_PER_KILOMETER = new BigDecimal("50.00");
-    private static final BigDecimal FARE_PER_MINUTE = new BigDecimal("10.00");
-    private static final String CURRENCY = "LKR";
+    private static final double BASE_FARE = 200.0;
+    private static final double RATE_PER_KM = 100.0;
 
-    public FareEstimateResponse estimateFare(FareEstimateRequest request) {
-        BigDecimal distanceFare = request.distanceKm()
-                .multiply(FARE_PER_KILOMETER)
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal durationFare = FARE_PER_MINUTE
-                .multiply(BigDecimal.valueOf(request.durationMinutes()))
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalFare = BASE_FARE
-                .add(distanceFare)
-                .add(durationFare)
-                .setScale(2, RoundingMode.HALF_UP);
+    public FareEstimateResponse calculateEstimate(FareEstimateRequest request) {
+        double estimatedFare = BASE_FARE + (request.getDistanceKm() * RATE_PER_KM);
 
         return new FareEstimateResponse(
-                BASE_FARE,
-                distanceFare,
-                durationFare,
-                totalFare,
-                CURRENCY);
+                request.getRideId(),
+                request.getDistanceKm(),
+                estimatedFare);
     }
 }

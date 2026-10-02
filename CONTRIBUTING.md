@@ -80,7 +80,7 @@ This repository is a backend-only microservices monorepo. It currently contains 
 Future microservices will be added as sibling directories under the repository root.
 
 ### Prerequisites
-* **JDK 21** — required by the build.
+* **JDK 25** — required by the build.
 * **Maven** — use the included Maven Wrapper (`./mvnw`); no separate Maven install needed.
 
 ### Build & Test

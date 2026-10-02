@@ -2,25 +2,25 @@ package com.ridelink.fare_service.dto;
 
 public class FareEstimateRequest {
 
-    private Long rideId;
-    private double distanceKm;
+	private Long rideId;
+	private double distanceKm;
 
-    public FareEstimateRequest() {
-    }
+	public FareEstimateRequest() {
+	}
 
-    public Long getRideId() {
-        return rideId;
-    }
+	public Long getRideId() {
+		return rideId;
+	}
 
-    public void setRideId(Long rideId) {
-        this.rideId = rideId;
-    }
+	public void setRideId(Long rideId) {
+		this.rideId = rideId;
+	}
 
-    public double getDistanceKm() {
-        return distanceKm;
-    }
+	public double getDistanceKm() {
+		return distanceKm;
+	}
 
-    public void setDistanceKm(double distanceKm) {
-        this.distanceKm = distanceKm;
-    }
+	public void setDistanceKm(double distanceKm) {
+		this.distanceKm = distanceKm;
+	}
 }

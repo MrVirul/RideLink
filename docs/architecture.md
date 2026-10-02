@@ -101,7 +101,7 @@ Neon PostgreSQL (ACCOUNT_DB_* env vars)
 
 | Concern        | Choice                                                        |
 | -------------- | ------------------------------------------------------------- |
-| Language       | Java 21                                                       |
+| Language       | Java 25                                                       |
 | Framework      | Spring Boot 4.1.1 (parent POM `org.springframework.boot`)     |
 | Spring Cloud   | 2025.1.3 BOM (`spring-cloud-dependencies`)                    |
 | Discovery      | `spring-cloud-starter-netflix-eureka-client` / `-server`      |
