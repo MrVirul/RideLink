@@ -16,11 +16,11 @@ public class FareService {
     private static final String CURRENCY = "LKR";
 
     public FareEstimateResponse estimateFare(FareEstimateRequest request) {
-        BigDecimal distanceFare = request.distanceKm()
+        BigDecimal distanceFare = BigDecimal.valueOf(request.getDistanceKm())
                 .multiply(FARE_PER_KILOMETER)
                 .setScale(2, RoundingMode.HALF_UP);
         BigDecimal durationFare = FARE_PER_MINUTE
-                .multiply(BigDecimal.valueOf(request.durationMinutes()))
+                .multiply(BigDecimal.valueOf(request.getDurationMinutes()))
                 .setScale(2, RoundingMode.HALF_UP);
         BigDecimal totalFare = BASE_FARE
                 .add(distanceFare)
