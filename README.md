@@ -51,7 +51,7 @@ routing, authentication, API reference, database, and operations/troubleshooting
 
 ## Tech Stack
 
-- **Java 21**
+- **Java 25**
 - **Spring Boot 4.1.1**
 - **Spring Cloud 2025.1.3** (Eureka, OpenFeign, Gateway)
 - **Spring Cloud Gateway Server Web MVC** — servlet (WebMVC) flavour of the gateway;
@@ -65,7 +65,7 @@ routing, authentication, API reference, database, and operations/troubleshooting
 
 ## Prerequisites
 
-- **JDK 21** (`java -version` → 21)
+- **JDK 25** (`java -version` → 25)
 - **Maven** — optional; the wrapper (`./mvnw`) downloads Maven on first run
 - **`curl` and `nc`** — required by the helper scripts (`startup.sh`, `monitor.sh`)
 
