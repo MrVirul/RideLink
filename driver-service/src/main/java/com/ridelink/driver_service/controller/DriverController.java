@@ -13,18 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/driver")
+@RequestMapping({"/api/v1/driver", "/api/v1/drivers"})
 public class DriverController {
 
     @Autowired
     private DriverService driverService;
-    @Autowired
-    private DriverRepository driverRepository;
 
     @PostMapping
-    public ResponseEntity<Driver> reigsterDriver(@Valid @RequestBody Driver driver) {
-        Driver saveDriver = driverService.reigsterDriver(driver);
-        return new ResponseEntity<>(saveDriver, HttpStatus.CREATED);
+    public ResponseEntity<Driver> registerDriver(@Valid @RequestBody Driver driver) {
+        Driver savedDriver = driverService.registerDriver(driver);
+        return new ResponseEntity<>(savedDriver, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}/location")
@@ -37,11 +35,15 @@ public class DriverController {
         return ResponseEntity.ok(updated);
     }
 
-    @PatchMapping("/{id}/availability")
-    public ResponseEntity<Driver> updateAvailability(
-            @PathVariable Integer id,
-            @Valid @RequestBody DriverDto.AvailabilityRequest request) {
-        Driver updated = driverService.updateAvailability(id, request.getAvailable());
+    @RequestMapping(
+            value = "/{driverId}/availability",
+            method = {RequestMethod.PUT, RequestMethod.PATCH}
+    )
+    public ResponseEntity<Driver> toggleAvailability(
+            @PathVariable("driverId") Integer driverId,
+            @RequestBody(required = false) DriverDto.AvailabilityRequest request) {
+        Boolean explicitAvailable = (request != null) ? request.getAvailable() : null;
+        Driver updated = driverService.toggleAvailability(driverId, explicitAvailable);
         return ResponseEntity.ok(updated);
     }
 
