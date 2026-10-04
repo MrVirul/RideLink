@@ -4,6 +4,7 @@ import com.ridelink.ride_service.Service.RideService;
 import com.ridelink.ride_service.dto.RideDto;
 import com.ridelink.ride_service.model.Ride;
 import com.ridelink.ride_service.model.RideCancellation;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class RideController {
     private RideService rideService;
 
     @PostMapping("/request")
+    @Operation(summary = "Request a ride")
     public ResponseEntity<RideDto.RideRequestResponse> createRideRequest(
             @RequestHeader(USER_HEADER) @Positive Long passengerId,
             @Valid @RequestBody RideDto.RideRequest request) {
@@ -39,6 +41,7 @@ public class RideController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get one of the caller's rides")
     public ResponseEntity<RideDto.RideRequestResponse> getRide(
             @PathVariable Integer id,
             @RequestHeader(USER_HEADER) @Positive Long passengerId) {
@@ -47,6 +50,7 @@ public class RideController {
     }
 
     @PostMapping("/{id}/assign")
+    @Operation(summary = "Assign an eligible driver to a searching ride")
     public ResponseEntity<RideDto.RideRequestResponse> assignDriver(
             @PathVariable Integer id) {
         Ride assigned = rideService.assignDriver(id);
@@ -54,6 +58,7 @@ public class RideController {
     }
 
     @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancel a ride")
     public ResponseEntity<RideDto.RideRequestResponse> cancelRide(
             @PathVariable Integer id,
             @RequestHeader(USER_HEADER) @Positive Long callerId,
@@ -63,6 +68,7 @@ public class RideController {
     }
 
     @GetMapping("/{id}/cancellation")
+    @Operation(summary = "Get the cancellation record for a cancelled ride")
     public ResponseEntity<RideDto.CancellationResponse> getCancellation(
             @PathVariable Integer id,
             @RequestHeader(USER_HEADER) @Positive Long callerId) {

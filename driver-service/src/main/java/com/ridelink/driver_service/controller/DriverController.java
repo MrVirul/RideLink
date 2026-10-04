@@ -4,6 +4,7 @@ import com.ridelink.driver_service.dto.DriverDto;
 import com.ridelink.driver_service.model.Driver;
 import com.ridelink.driver_service.repository.DriverRepository;
 import com.ridelink.driver_service.service.DriverService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,14 @@ public class DriverController {
     private DriverService driverService;
 
     @PostMapping
+    @Operation(summary = "Register a driver")
     public ResponseEntity<Driver> registerDriver(@Valid @RequestBody Driver driver) {
         Driver savedDriver = driverService.registerDriver(driver);
         return new ResponseEntity<>(savedDriver, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}/location")
+    @Operation(summary = "Update a driver's current location")
     public ResponseEntity<Driver> updateLocation(
             @PathVariable Integer id,
             @Valid @RequestBody DriverDto.LocationRequest request) {
@@ -39,6 +42,7 @@ public class DriverController {
             value = "/{driverId}/availability",
             method = {RequestMethod.PUT, RequestMethod.PATCH}
     )
+    @Operation(summary = "Set or toggle a driver's availability")
     public ResponseEntity<Driver> toggleAvailability(
             @PathVariable("driverId") Integer driverId,
             @RequestBody(required = false) DriverDto.AvailabilityRequest request) {
@@ -48,6 +52,7 @@ public class DriverController {
     }
 
     @GetMapping("/eligible")
+    @Operation(summary = "List drivers currently available and eligible for assignment")
     public ResponseEntity<List<Driver>> getEligibleDrivers() {
         List<Driver> drivers = driverService.getEligibleAvailableDrivers();
         return ResponseEntity.ok(drivers);

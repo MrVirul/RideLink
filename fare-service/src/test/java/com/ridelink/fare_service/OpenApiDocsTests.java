@@ -1,4 +1,4 @@
-package com.ridelink.account_service;
+package com.ridelink.fare_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -17,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * own Swagger UI dropdown, so an endpoint or DTO example that quietly drops out of the
  * document is only visible in a browser - until now.
  */
-@SpringBootTest
+@SpringBootTest(properties = "eureka.client.enabled=false")
 @AutoConfigureMockMvc
 class OpenApiDocsTests {
 
@@ -32,27 +31,20 @@ class OpenApiDocsTests {
 
     @Test
     void specIsServed() throws Exception {
-        assertTrue(spec().contains("RideLink - Account Service API"),
+        assertTrue(spec().contains("RideLink - Fare Service API"),
                 "the @OpenAPIDefinition title should be in the spec");
-    }
-
-    @Test
-    void specDeclaresTheBearerSchemeGlobally() throws Exception {
-        String spec = spec();
-        assertTrue(spec.contains("\"bearerAuth\""),
-                "bearerAuth should be declared in components.securitySchemes");
-        assertTrue(spec.contains("\"security\""),
-                "spec should carry a security requirement, otherwise the Authorize dialog does nothing");
     }
 
     @Test
     void everyEndpointIsPublished() throws Exception {
         String spec = spec();
         for (String path : new String[]{
-                "/api/v1/auth/signup",
-                "/api/v1/auth/login",
-                "/api/v1/accounts/profile",
-                "/api/v1/accounts/profile/password"}) {
+                "/api/v1/fare/estimate",
+                "/api/v1/fare/final",
+                "/api/payments",
+                "/api/payments/{paymentId}",
+                "/api/payments/ride/{rideId}",
+                "/api/payments/{paymentId}/receipt"}) {
             assertTrue(spec.contains("\"" + path + "\""),
                     "gateway Swagger UI should list " + path);
         }
@@ -66,31 +58,12 @@ class OpenApiDocsTests {
     @Test
     void everyRequestSchemaCarriesSampleValues() throws Exception {
         String spec = spec();
-        for (String schema : new String[]{"LoginRequest", "SignupRequest",
-                "UpdateProfileRequest", "UpdatePasswordRequest"}) {
+        for (String schema : new String[]{"FareEstimateRequest", "FinalFareRequest", "PaymentRequest"}) {
             assertTrue(spec.contains("\"" + schema + "\""), schema + " should be in the spec");
         }
         assertTrue(spec.contains("\"example\""),
                 "request schemas should carry example values so Swagger UI shows a usable body");
-        assertTrue(spec.contains("virul@gmail.com"), "LoginRequest/SignupRequest should show a sample email");
-    }
-
-    @Test
-    void specDoesNotLeakTheEntityInternals() throws Exception {
-        String spec = spec();
-        assertTrue(spec.contains("UserResponse"), "signup should document the UserResponse shape");
-        assertFalse(spec.contains("accountNonLocked"),
-                "UserDetails plumbing leaked into the published spec - use UserResponse");
-        assertFalse(spec.contains("credentialsNonExpired"),
-                "UserDetails plumbing leaked into the published spec - use UserResponse");
-    }
-
-    @Test
-    void swaggerUiConfigEndpointIsServed() throws Exception {
-        MvcResult result = mockMvc.perform(get("/v3/api-docs/swagger-config")).andReturn();
-        assertEquals(200, result.getResponse().getStatus(), "/v3/api-docs/swagger-config should be served");
-        assertTrue(result.getResponse().getContentAsString().contains("/v3/api-docs"),
-                "swagger-config should point back at the spec");
+        assertTrue(spec.contains("CARD"), "PaymentRequest should show a sample payment method");
     }
 
     @Test

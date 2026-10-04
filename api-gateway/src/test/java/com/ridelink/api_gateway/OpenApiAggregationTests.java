@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -24,6 +25,19 @@ class OpenApiAggregationTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    /**
+     * The service-registry is pure Eureka infrastructure with no REST surface of its own,
+     * so it is deliberately absent from the dropdown. This test records that decision, so
+     * that adding or removing it later is a deliberate change rather than an accident.
+     */
+    @Test
+    void swaggerUiConfigOmitsTheServiceRegistry() throws Exception {
+        MvcResult result = mockMvc.perform(get("/v3/api-docs/swagger-config")).andReturn();
+        String config = result.getResponse().getContentAsString();
+        assertFalse(config.contains("service-registry"),
+                "service-registry has no API endpoints, it should not be offered in the UI");
+    }
 
     @Test
     void swaggerUiConfigListsEveryService() throws Exception {
