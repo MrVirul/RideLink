@@ -29,7 +29,7 @@ public class FareController {
     @Operation(summary = "Estimate a ride fare")
     public ResponseEntity<FareEstimateResponse> estimateFare(
             @Valid @RequestBody FareEstimateRequest request) {
-        return ResponseEntity.ok(fareService.estimateFare(request));
+        return ResponseEntity.ok(fareService.calculateEstimate(request));
     }
 
     @PostMapping("/final")
