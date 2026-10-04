@@ -41,7 +41,11 @@ class OpenApiDocsTests {
         for (String path : new String[]{
                 "/api/v1/ride/request",
                 "/api/v1/ride/{id}",
-                "/api/v1/ride/{id}/assign",
+                "/api/v1/ride/{id}/status",
+                "/api/v1/ride/passenger/me",
+                "/api/v1/ride/driver/me",
+                "/api/v1/ride/{id}/start",
+                "/api/v1/ride/{id}/complete",
                 "/api/v1/ride/{id}/cancel",
                 "/api/v1/ride/{id}/cancellation"}) {
             assertTrue(spec.contains("\"" + path + "\""),

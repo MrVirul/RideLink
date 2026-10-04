@@ -329,4 +329,87 @@ public class RideDto {
             this.cancelledBy = cancelledBy;
         }
     }
+
+    @Schema(name = "RideStatusResponse")
+    public static class RideStatusResponse {
+
+        @Schema(description = "Id of the ride", example = "42")
+        private Integer rideId;
+
+        @Schema(description = "Current lifecycle state of the ride", example = "ASSIGNED")
+        private Status status;
+
+        @Schema(description = "Last time the ride was updated (falls back to requested time)", example = "2026-09-28T10:17:04")
+        private LocalDateTime updatedAt;
+
+        @Schema(description = "When a driver was assigned, null until then", example = "2026-09-28T10:17:04")
+        private LocalDateTime assignedAt;
+
+        @Schema(description = "Id of the assigned driver, null until assigned", example = "9")
+        private Long driverId;
+
+        @Schema(description = "When the ride was cancelled, null unless cancelled", example = "2026-09-28T10:22:10")
+        private LocalDateTime cancelledAt;
+
+        public RideStatusResponse() {
+        }
+
+        public RideStatusResponse(Integer rideId, Status status, LocalDateTime updatedAt,
+                                  LocalDateTime assignedAt, Long driverId, LocalDateTime cancelledAt) {
+            this.rideId = rideId;
+            this.status = status;
+            this.updatedAt = updatedAt;
+            this.assignedAt = assignedAt;
+            this.driverId = driverId;
+            this.cancelledAt = cancelledAt;
+        }
+
+        public Integer getRideId() {
+            return rideId;
+        }
+
+        public void setRideId(Integer rideId) {
+            this.rideId = rideId;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
+
+        public LocalDateTime getUpdatedAt() {
+            return updatedAt;
+        }
+
+        public void setUpdatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+        }
+
+        public LocalDateTime getAssignedAt() {
+            return assignedAt;
+        }
+
+        public void setAssignedAt(LocalDateTime assignedAt) {
+            this.assignedAt = assignedAt;
+        }
+
+        public Long getDriverId() {
+            return driverId;
+        }
+
+        public void setDriverId(Long driverId) {
+            this.driverId = driverId;
+        }
+
+        public LocalDateTime getCancelledAt() {
+            return cancelledAt;
+        }
+
+        public void setCancelledAt(LocalDateTime cancelledAt) {
+            this.cancelledAt = cancelledAt;
+        }
+    }
 }
