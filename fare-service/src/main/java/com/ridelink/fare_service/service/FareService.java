@@ -1,37 +1,38 @@
 package com.ridelink.fare_service.service;
 
-import com.ridelink.fare_service.dto.FareEstimateRequest;
-import com.ridelink.fare_service.dto.FareEstimateResponse;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import org.springframework.stereotype.Service;
+
+import com.ridelink.fare_service.dto.FareEstimateRequest;
+import com.ridelink.fare_service.dto.FareEstimateResponse;
+import com.ridelink.fare_service.dto.FinalFareRequest;
+import com.ridelink.fare_service.dto.FinalFareResponse;
 
 @Service
 public class FareService {
 
-    private static final BigDecimal BASE_FARE = new BigDecimal("100.00");
-    private static final BigDecimal FARE_PER_KILOMETER = new BigDecimal("50.00");
-    private static final BigDecimal FARE_PER_MINUTE = new BigDecimal("10.00");
-    private static final String CURRENCY = "LKR";
+    private static final BigDecimal BASE_FARE = new BigDecimal("200.00");
+    private static final BigDecimal RATE_PER_KM = new BigDecimal("100.00");
 
-    public FareEstimateResponse estimateFare(FareEstimateRequest request) {
-        BigDecimal distanceFare = BigDecimal.valueOf(request.getDistanceKm())
-                .multiply(FARE_PER_KILOMETER)
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal durationFare = FARE_PER_MINUTE
-                .multiply(BigDecimal.valueOf(request.getDurationMinutes()))
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalFare = BASE_FARE
-                .add(distanceFare)
-                .add(durationFare)
-                .setScale(2, RoundingMode.HALF_UP);
+    public FareEstimateResponse calculateEstimate(FareEstimateRequest request) {
+        BigDecimal estimatedFare = calculateFare(request.distanceKm());
 
         return new FareEstimateResponse(
-                BASE_FARE,
-                distanceFare,
-                durationFare,
-                totalFare,
-                CURRENCY);
+                request.rideId(),
+                request.distanceKm(),
+                estimatedFare);
+    }
+
+    public FinalFareResponse calculateFinalFare(FinalFareRequest request) {
+        return new FinalFareResponse(
+                request.rideId(),
+                request.actualDistanceKm(),
+                calculateFare(request.actualDistanceKm()));
+    }
+
+    private BigDecimal calculateFare(BigDecimal distanceKm) {
+        return BASE_FARE.add(distanceKm.multiply(RATE_PER_KM)).setScale(2, RoundingMode.HALF_UP);
     }
 }
