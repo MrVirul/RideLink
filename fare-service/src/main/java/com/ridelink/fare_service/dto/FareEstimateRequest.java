@@ -1,36 +1,13 @@
 package com.ridelink.fare_service.dto;
 
-public class FareEstimateRequest {
+import java.math.BigDecimal;
 
-    private Long rideId;
-    private double distanceKm;
-    private long durationMinutes;  // ADD THIS FIELD
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
-    public FareEstimateRequest() {
-    }
-
-    public Long getRideId() {
-        return rideId;
-    }
-
-    public void setRideId(Long rideId) {
-        this.rideId = rideId;
-    }
-
-    public double getDistanceKm() {
-        return distanceKm;
-    }
-
-    public void setDistanceKm(double distanceKm) {
-        this.distanceKm = distanceKm;
-    }
-
-    // ADD THESE METHODS
-    public long getDurationMinutes() {
-        return durationMinutes;
-    }
-
-    public void setDurationMinutes(long durationMinutes) {
-        this.durationMinutes = durationMinutes;
-    }
+public record FareEstimateRequest(
+        @NotNull(message = "Ride ID is required") Long rideId,
+        @NotNull(message = "Distance must be provided")
+        @DecimalMin(value = "0", inclusive = false, message = "Distance must be greater than 0")
+        BigDecimal distanceKm) {
 }
