@@ -8,6 +8,8 @@ import com.ridelink.ride_service.model.Status;
 import com.ridelink.ride_service.repository.RideCancellationRepository;
 import com.ridelink.ride_service.repository.RideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +141,87 @@ public class RideService {
         return rideCancellationRepository.findByRideId(rideId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Ride " + rideId + " was never cancelled"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Ride> getRidesForPassenger(Long passengerId, Status status) {
+        if (status == null) {
+            return rideRepository.findByUserIdOrderByRequestedTimeDesc(passengerId);
+        }
+        return rideRepository.findByUserIdAndStatusOrderByRequestedTimeDesc(passengerId, status);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Ride> getRidesForPassenger(Long passengerId, Status status, Pageable pageable) {
+        if (status == null) {
+            return rideRepository.findByUserIdOrderByRequestedTimeDesc(passengerId, pageable);
+        }
+        return rideRepository.findByUserIdAndStatusOrderByRequestedTimeDesc(passengerId, status, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Ride> getRidesForDriver(Long driverId, Status status) {
+        if (status == null) {
+            return rideRepository.findByDriverIdOrderByAssignedAtDesc(driverId);
+        }
+        return rideRepository.findByDriverIdAndStatusOrderByAssignedAtDesc(driverId, status);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Ride> getRidesForDriver(Long driverId, Status status, Pageable pageable) {
+        if (status == null) {
+            return rideRepository.findByDriverIdOrderByAssignedAtDesc(driverId, pageable);
+        }
+        return rideRepository.findByDriverIdAndStatusOrderByAssignedAtDesc(driverId, status, pageable);
+    }
+
+    @Transactional
+    public Ride startRide(Integer rideId, Long callerId) {
+        Ride ride = rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Ride " + rideId + " not found"));
+
+        if (!callerId.equals(ride.getDriverId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Caller " + callerId + " is not the assigned driver of ride " + rideId);
+        }
+
+        if (ride.getStatus() != Status.ASSIGNED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ride " + rideId + " cannot be started from state " + ride.getStatus());
+        }
+
+        ride.setStatus(Status.ONGOING);
+        ride.setStartTime(LocalDateTime.now());
+        return rideRepository.save(ride);
+    }
+
+    @Transactional
+    public Ride completeRide(Integer rideId, Long callerId) {
+        Ride ride = rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Ride " + rideId + " not found"));
+
+        if (!callerId.equals(ride.getDriverId()) && !ride.getUserId().equals(callerId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Caller " + callerId + " is not part of ride " + rideId);
+        }
+
+        if (ride.getStatus() != Status.ONGOING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ride " + rideId + " cannot be completed from state " + ride.getStatus());
+        }
+
+        ride.setStatus(Status.COMPLETED);
+        ride.setCompletedTime(LocalDateTime.now());
+        return rideRepository.save(ride);
+    }
+
+    @Transactional(readOnly = true)
+    public Ride getRide(Integer rideId) {
+        return rideRepository.findById(rideId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Ride " + rideId + " not found"));
     }
 
     private void rejectIfRideAlreadyActive(Long passengerId) {

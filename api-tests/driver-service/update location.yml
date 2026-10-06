@@ -5,7 +5,7 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:8080/driver-service/api/v1/driver/5/location
+  url: http://localhost:8080/driver-service/api/v1/driver/6/location
   body:
     type: json
     data: |-

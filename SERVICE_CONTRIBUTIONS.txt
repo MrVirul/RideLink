@@ -1,0 +1,73 @@
+RideLink - Microservice Contributions
+=====================================
+
+Service: Service Registry (Eureka Server)
+I designed, developed, configured and tested the Service Registry. My contributions:
+- Configured the Eureka discovery server as a standalone node on port 8761.
+- Configured client fetch/register behaviour and instance hostname.
+- Exposed health, info and metrics through Actuator.
+- Configured logging for the registry.
+- Verified service registration and instance listing through the Eureka dashboard.
+- Troubleshot registration and discovery issues between the services.
+
+
+Service: API Gateway
+I designed, developed, configured and tested the API Gateway. My contributions:
+- Configured Spring Cloud Gateway routing to account, driver, ride and fare services using Eureka-based load-balanced URIs.
+- Configured prefix stripping so downstream services receive clean paths.
+- Configured aggregated Swagger UI listing all four business services and excluding the registry.
+- Configured Actuator health, info and metrics endpoints.
+- Verified routing end to end through the gateway for each registered service.
+- Troubleshot service startup order, routing and Swagger server-routing configuration.
+
+
+Service: Account Service
+I designed, developed, configured and tested the Account Service. My contributions:
+- Implemented account signup and login with BCrypt password hashing and JWT issuance, including a custom role claim.
+- Implemented profile retrieval, profile update and password change logic.
+- Implemented Spring Security configuration with a stateless JWT filter and role-based access rules.
+- Implemented audit logging for signup, login, profile update and password update events.
+- Integrated Spring Data JPA with PostgreSQL and verified connectivity.
+- Configured Swagger/OpenAPI with a bearer security scheme and public-endpoint handling.
+- Wrote integration tests covering role-based access, JWT claims and the generated OpenAPI spec.
+- Troubleshot JWT secret configuration, database connectivity and access-control behaviour.
+
+
+Service: Driver Service
+I designed, developed, configured and tested the Driver Service. My contributions:
+- Implemented driver registration with default availability and online timestamp.
+- Implemented location updates with latitude and longitude range validation and accuracy handling.
+- Implemented explicit availability setting and availability toggling.
+- Implemented the eligible available drivers endpoint consumed by the ride service.
+- Implemented the availability history audit trail with entity and repository.
+- Integrated Spring Data JPA with PostgreSQL and verified connectivity.
+- Configured Swagger/OpenAPI with a bearer security scheme.
+- Wrote unit tests covering coordinate validation, accuracy defaults and availability toggling.
+- Identified validation gaps from using the persistence entity directly as the request body.
+
+
+Service: Ride Service
+I designed, developed, configured and tested the Ride Service. My contributions:
+- Implemented ride request creation with server-side timestamps and the one-active-ride-per-passenger rule.
+- Implemented the ride status state machine covering searching, assigned, ongoing, completed and cancelled transitions.
+- Implemented guarded transitions with conflict responses for invalid state changes.
+- Implemented pessimistic write locking to serialise concurrent ride transitions.
+- Implemented asymmetric cancellation permissions for passengers and assigned drivers.
+- Implemented the ride cancellation audit trail with previous status, actor and reason.
+- Implemented the Feign client to the driver service for fetching available drivers.
+- Implemented passenger and driver ride history with status filtering and pagination.
+- Integrated Spring Data JPA with PostgreSQL and verified connectivity.
+- Configured Swagger/OpenAPI with a bearer security scheme.
+- Wrote unit, controller contract and OpenAPI tests.
+- Identified the rideId validation gap and the unauthenticated user-header placeholder.
+
+
+Service: Fare & Payment Service
+I designed, developed, configured and tested the Fare & Payment Service. My contributions:
+- Implemented fare estimation and final-fare calculation, with request/response DTOs and business logic.
+- Implemented simulated payment processing, payment retrieval and receipt generation structure.
+- Implemented validation and exception-handling structures.
+- Integrated Spring Data JPA with PostgreSQL and verified connectivity.
+- Configured Swagger/OpenAPI and tested the APIs through it.
+- Troubleshot service startup, Eureka and Swagger server-routing configuration.
+- Verified estimated and final fare calculations; identified the rideId validation gap.

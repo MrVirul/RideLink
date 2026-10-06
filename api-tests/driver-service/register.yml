@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "userId": 25,
+        "userId": 67,
         "vehicleNumberPlate": "CAB-1234",
         "latitude": 6.8649,
         "longitude": 79.8997,

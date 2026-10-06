@@ -8,6 +8,8 @@ import com.ridelink.ride_service.Service.RideService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -15,13 +17,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -180,32 +185,147 @@ class RideControllerContractTests {
     }
 
     @Test
-    void assignReturnsTheAssignedRide() throws Exception {
-        when(rideService.assignDriver(RIDE_ID)).thenReturn(assignedRide());
+    void statusReturnsTheCurrentState() throws Exception {
+        when(rideService.getRide(RIDE_ID)).thenReturn(assignedRide());
 
-        mockMvc.perform(post("/api/v1/ride/42/assign"))
+        mockMvc.perform(get("/api/v1/ride/42/status"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(RIDE_ID))
+                .andExpect(jsonPath("$.rideId").value(RIDE_ID))
                 .andExpect(jsonPath("$.status").value("ASSIGNED"))
                 .andExpect(jsonPath("$.driverId").value(9))
-                .andExpect(content().string(containsString("assignedAt")));
+                .andExpect(jsonPath("$.cancelledAt").doesNotExist());
     }
 
     @Test
-    void assignConflictsWhenTheRideIsNotSearching() throws Exception {
-        when(rideService.assignDriver(RIDE_ID))
-                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "cannot be assigned from state ONGOING"));
+    void statusReportsTheLatestLifecycleTimestamp() throws Exception {
+        when(rideService.getRide(RIDE_ID)).thenReturn(assignedRide());
 
-        mockMvc.perform(post("/api/v1/ride/42/assign"))
+        mockMvc.perform(get("/api/v1/ride/42/status"))
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+                .andExpect(jsonPath("$.assignedAt").isNotEmpty());
+    }
+
+    @Test
+    void statusIsNotFoundForUnknownId() throws Exception {
+        when(rideService.getRide(anyInt()))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride 99 not found"));
+
+        mockMvc.perform(get("/api/v1/ride/99/status"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void passengerHistoryIsReturnedWithoutPaginationParams() throws Exception {
+        when(rideService.getRidesForPassenger(PASSENGER_ID, null)).thenReturn(List.of(searchingRide()));
+
+        mockMvc.perform(get("/api/v1/ride/passenger/me").header("X-User-Id", "7"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(RIDE_ID))
+                .andExpect(jsonPath("$[0].passengerId").value(PASSENGER_ID));
+    }
+
+    @Test
+    void passengerHistoryFiltersByStatus() throws Exception {
+        when(rideService.getRidesForPassenger(PASSENGER_ID, Status.CANCELLED))
+                .thenReturn(List.of(cancelledRide()));
+
+        mockMvc.perform(get("/api/v1/ride/passenger/me")
+                        .header("X-User-Id", "7")
+                        .param("status", "cancelled"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].status").value("CANCELLED"));
+    }
+
+    @Test
+    void passengerHistoryRejectsAnUnknownStatus() throws Exception {
+        mockMvc.perform(get("/api/v1/ride/passenger/me")
+                        .header("X-User-Id", "7")
+                        .param("status", "teleporting"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void passengerHistoryIsPaginatedWhenBothParamsAreGiven() throws Exception {
+        when(rideService.getRidesForPassenger(eq(PASSENGER_ID), eq(null), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(searchingRide())));
+
+        mockMvc.perform(get("/api/v1/ride/passenger/me")
+                        .header("X-User-Id", "7")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(RIDE_ID));
+    }
+
+    @Test
+    void driverHistoryIsReturnedForTheCallingDriver() throws Exception {
+        when(rideService.getRidesForDriver(9L, null)).thenReturn(List.of(assignedRide()));
+
+        mockMvc.perform(get("/api/v1/ride/driver/me").header("X-User-Id", "9"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].driverId").value(9))
+                .andExpect(jsonPath("$[0].status").value("ASSIGNED"));
+    }
+
+    @Test
+    void driverHistoryIsPaginatedWhenBothParamsAreGiven() throws Exception {
+        when(rideService.getRidesForDriver(eq(9L), eq(null), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(assignedRide())));
+
+        mockMvc.perform(get("/api/v1/ride/driver/me")
+                        .header("X-User-Id", "9")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].driverId").value(9));
+    }
+
+    @Test
+    void startReturnsTheOngoingRide() throws Exception {
+        when(rideService.startRide(RIDE_ID, 9L)).thenReturn(ongoingRide());
+
+        mockMvc.perform(patch("/api/v1/ride/42/start").header("X-User-Id", "9"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RIDE_ID))
+                .andExpect(jsonPath("$.status").value("ONGOING"))
+                .andExpect(content().string(containsString("startTime")));
+    }
+
+    @Test
+    void startSurfacesForbiddenForAnotherDriver() throws Exception {
+        when(rideService.startRide(RIDE_ID, 3L))
+                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "not the assigned driver"));
+
+        mockMvc.perform(patch("/api/v1/ride/42/start").header("X-User-Id", "3"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void startSurfacesConflictWhenTheRideIsNotAssigned() throws Exception {
+        when(rideService.startRide(RIDE_ID, 9L))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "cannot be started from state SEARCHING"));
+
+        mockMvc.perform(patch("/api/v1/ride/42/start").header("X-User-Id", "9"))
                 .andExpect(status().isConflict());
     }
 
     @Test
-    void assignConflictsWhenNoDriverIsAvailable() throws Exception {
-        when(rideService.assignDriver(RIDE_ID))
-                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "No drivers are available"));
+    void completeReturnsTheCompletedRide() throws Exception {
+        when(rideService.completeRide(RIDE_ID, 9L)).thenReturn(completedRide());
 
-        mockMvc.perform(post("/api/v1/ride/42/assign"))
+        mockMvc.perform(patch("/api/v1/ride/42/complete").header("X-User-Id", "9"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RIDE_ID))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(content().string(containsString("completedTime")));
+    }
+
+    @Test
+    void completeSurfacesConflictWhenTheRideIsNotOngoing() throws Exception {
+        when(rideService.completeRide(RIDE_ID, 9L))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "cannot be completed from state ASSIGNED"));
+
+        mockMvc.perform(patch("/api/v1/ride/42/complete").header("X-User-Id", "9"))
                 .andExpect(status().isConflict());
     }
 
@@ -214,6 +334,20 @@ class RideControllerContractTests {
         ride.setStatus(Status.ASSIGNED);
         ride.setDriverId(9L);
         ride.setAssignedAt(LocalDateTime.now());
+        return ride;
+    }
+
+    private Ride ongoingRide() {
+        Ride ride = assignedRide();
+        ride.setStatus(Status.ONGOING);
+        ride.setStartTime(LocalDateTime.now());
+        return ride;
+    }
+
+    private Ride completedRide() {
+        Ride ride = ongoingRide();
+        ride.setStatus(Status.COMPLETED);
+        ride.setCompletedTime(LocalDateTime.now());
         return ride;
     }
 
