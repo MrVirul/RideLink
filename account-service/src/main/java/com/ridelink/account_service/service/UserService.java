@@ -1,5 +1,7 @@
 package com.ridelink.account_service.service;
 
+import com.ridelink.account_service.exception.IncorrectOldPasswordException;
+import com.ridelink.account_service.exception.ResourceNotFoundException;
 import com.ridelink.account_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +28,7 @@ public class UserService implements UserDetailsService {
 
     public com.ridelink.account_service.model.User getUserProfile(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     public com.ridelink.account_service.model.User updateUserProfile(String email, String newName) {
@@ -42,7 +44,7 @@ public class UserService implements UserDetailsService {
         com.ridelink.account_service.model.User user = getUserProfile(email);
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             log.warn("AUDIT: Failed password update attempt for email: {}", email);
-            throw new RuntimeException("Incorrect old password");
+            throw new IncorrectOldPasswordException("Incorrect old password");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);

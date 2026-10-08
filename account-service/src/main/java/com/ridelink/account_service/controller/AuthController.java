@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,12 +58,12 @@ public class AuthController {
     public ResponseEntity<UserResponse> register(
             @Valid @RequestBody SignupRequest request){
         User registeredUser = authService.registerUser(request);
-        return ResponseEntity.ok(UserResponse.from(registeredUser));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(registeredUser));
     }
 
     @PostMapping("/login")
     @Operation(summary = "Exchange credentials for a JWT")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
         String token = authService.authenticateAndGetToken(request.email(), request.password());
         return ResponseEntity.ok(token);
     }

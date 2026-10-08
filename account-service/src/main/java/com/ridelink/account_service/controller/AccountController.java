@@ -55,11 +55,7 @@ public class AccountController {
     public ResponseEntity<String> updatePassword(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdatePasswordRequest request) {
-        try {
-            userService.updatePassword(userDetails.getUsername(), request.oldPassword(), request.newPassword());
-            return ResponseEntity.ok("Password updated successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        userService.updatePassword(userDetails.getUsername(), request.oldPassword(), request.newPassword());
+        return ResponseEntity.ok("Password updated successfully");
     }
 }
