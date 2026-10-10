@@ -36,6 +36,7 @@ table and implements Spring Security's `UserDetails`:
 
 | Path | Access |
 | ---- | ------ |
+| `/api/v1/auth/me`, `/api/v1/auth/logout` | `authenticated` (matched before the wildcard below) |
 | `/api/v1/auth/**` | `permitAll` (signup/login) |
 | `/actuator/health/**`, `/actuator/info/**` | `permitAll` |
 | `/error` | `permitAll` |
@@ -94,6 +95,54 @@ Request body uses a `LoginRequest` record:
 
 Flow: `AuthService.authenticateAndGetToken()` attempts `authenticationManager.authenticate()`
 (BCrypt verified via the DAO provider). If successful it generates a real JWT using `JwtService.generateToken` and returns it as a plain string. Invalid credentials surface as a `403 Forbidden`.
+
+### `GET /api/v1/auth/me`
+
+Returns the account behind the presented token, read from the Spring Security principal
+(`@AuthenticationPrincipal UserDetails`) and projected to a `UserResponse` (`id`, `name`,
+`email`, `role`) — the raw `UserDetails`/`User` entity is never serialised, so the BCrypt hash
+and the `UserDetails` plumbing fields stay off the wire.
+
+Unlike `signup`/`login`, this path is **not** public: it is explicitly matched with
+`.requestMatchers("/api/v1/auth/me").authenticated()` *before* the `/api/v1/auth/**` `permitAll`
+rule in `SecurityConfig`, so an absent/invalid token yields `403 Forbidden`.
+
+```http
+GET /account-service/api/v1/auth/me HTTP/1.1
+Host: localhost:8080
+Authorization: Bearer <token>
+```
+
+**Response — `200 OK`**
+
+```json
+{
+  "id": 1,
+  "name": "Virul",
+  "email": "virul@gmail.com",
+  "role": "PASSENGER"
+}
+```
+
+### `POST /api/v1/auth/logout`
+
+Signs the caller out. Because the flow is **stateless JWT**, the server keeps no session and
+has nothing it can invalidate: the endpoint is authenticated (so only a holder of a valid token
+can call it), records an `AUDIT:` line, and returns `200 OK` with a plain-text acknowledgement.
+**The client is responsible for discarding the token** — until it expires (24 h) the JWT remains
+cryptographically valid if it has already been copied elsewhere.
+
+```http
+POST /account-service/api/v1/auth/logout HTTP/1.1
+Host: localhost:8080
+Authorization: Bearer <token>
+```
+
+**Response — `200 OK`**
+
+```
+Signed out successfully
+```
 
 ## Account endpoints (`controller/AccountController.java`)
 
