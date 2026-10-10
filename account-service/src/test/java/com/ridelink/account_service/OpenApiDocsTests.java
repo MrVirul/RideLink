@@ -51,6 +51,8 @@ class OpenApiDocsTests {
         for (String path : new String[]{
                 "/api/v1/auth/signup",
                 "/api/v1/auth/login",
+                "/api/v1/auth/me",
+                "/api/v1/auth/logout",
                 "/api/v1/accounts/profile",
                 "/api/v1/accounts/profile/password"}) {
             assertTrue(spec.contains("\"" + path + "\""),

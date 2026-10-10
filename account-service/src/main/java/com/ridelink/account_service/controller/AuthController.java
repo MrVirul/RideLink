@@ -2,6 +2,7 @@ package com.ridelink.account_service.controller;
 
 import com.ridelink.account_service.model.Role;
 import com.ridelink.account_service.model.User;
+import com.ridelink.account_service.service.UserService;
 import com.ridelink.account_service.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,17 +10,24 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     public record LoginRequest(
             @Schema(description = "Email address the account was registered with", example = "virul@gmail.com")
@@ -66,5 +74,19 @@ public class AuthController {
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
         String token = authService.authenticateAndGetToken(request.email(), request.password());
         return ResponseEntity.ok(token);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "Get the account behind the presented bearer token")
+    public ResponseEntity<UserResponse> me(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.getUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(UserResponse.from(user));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Sign out (the stateless server has no session to invalidate, so the client discards its JWT)")
+    public ResponseEntity<String> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        log.info("AUDIT: User signed out: {}", userDetails.getUsername());
+        return ResponseEntity.ok("Signed out successfully");
     }
 }
