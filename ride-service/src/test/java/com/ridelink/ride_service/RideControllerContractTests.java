@@ -281,6 +281,36 @@ class RideControllerContractTests {
     }
 
     @Test
+    void assignReturnsTheAssignedRide() throws Exception {
+        when(rideService.assignDriver(RIDE_ID)).thenReturn(assignedRide());
+
+        mockMvc.perform(post("/api/v1/ride/42/assign"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RIDE_ID))
+                .andExpect(jsonPath("$.status").value("ASSIGNED"))
+                .andExpect(jsonPath("$.driverId").value(9))
+                .andExpect(content().string(containsString("assignedAt")));
+    }
+
+    @Test
+    void assignSurfacesNotFoundForUnknownId() throws Exception {
+        when(rideService.assignDriver(anyInt()))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride 99 not found"));
+
+        mockMvc.perform(post("/api/v1/ride/99/assign"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void assignSurfacesConflictWhenNoDriverIsAvailable() throws Exception {
+        when(rideService.assignDriver(RIDE_ID))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "No drivers are available to take ride 42"));
+
+        mockMvc.perform(post("/api/v1/ride/42/assign"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void startReturnsTheOngoingRide() throws Exception {
         when(rideService.startRide(RIDE_ID, 9L)).thenReturn(ongoingRide());
 

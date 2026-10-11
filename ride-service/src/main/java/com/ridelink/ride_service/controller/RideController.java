@@ -117,6 +117,14 @@ public class RideController {
         return ResponseEntity.ok(rides.stream().map(this::toResponse).collect(Collectors.toList()));
     }
 
+    @PostMapping("/{id}/assign")
+    @Operation(summary = "Assign an available driver to a ride (transition SEARCHING -> ASSIGNED)")
+    public ResponseEntity<RideDto.RideRequestResponse> assignDriver(
+            @PathVariable Integer id) {
+        Ride assigned = rideService.assignDriver(id);
+        return ResponseEntity.ok(toResponse(assigned));
+    }
+
     @PatchMapping("/{id}/start")
     @Operation(summary = "Start a ride (transition ASSIGNED -> ONGOING)")
     public ResponseEntity<RideDto.RideRequestResponse> startRide(

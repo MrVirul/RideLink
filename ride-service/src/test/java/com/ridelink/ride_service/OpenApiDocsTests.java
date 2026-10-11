@@ -44,6 +44,7 @@ class OpenApiDocsTests {
                 "/api/v1/ride/{id}/status",
                 "/api/v1/ride/passenger/me",
                 "/api/v1/ride/driver/me",
+                "/api/v1/ride/{id}/assign",
                 "/api/v1/ride/{id}/start",
                 "/api/v1/ride/{id}/complete",
                 "/api/v1/ride/{id}/cancel",

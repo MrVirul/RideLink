@@ -131,6 +131,7 @@ $ curl http://localhost:8081/actuator/health
 | GET        | `/api/v1/ride/{id}/status`        | ride (8083)         | none                |
 | GET        | `/api/v1/ride/passenger/me`       | ride (8083)         | `X-User-Id`         |
 | GET        | `/api/v1/ride/driver/me`          | ride (8083)         | `X-User-Id`         |
+| POST       | `/api/v1/ride/{id}/assign`        | ride (8083)         | none                |
 | PATCH      | `/api/v1/ride/{id}/start`         | ride (8083)         | `X-User-Id`         |
 | PATCH      | `/api/v1/ride/{id}/complete`      | ride (8083)         | `X-User-Id`         |
 | POST       | `/api/v1/ride/{id}/cancel`        | ride (8083)         | `X-User-Id`         |
@@ -618,6 +619,31 @@ X-User-Id: 9
 | Status | When                                        |
 | ------ | ------------------------------------------- |
 | `400`  | Missing `X-User-Id`, or an unknown `status` |
+
+### POST /api/v1/ride/{id}/assign
+
+Assigns the first available driver (read from `driver-service` `GET /api/v1/driver/eligible`) to
+a `SEARCHING` ride and transitions it to `ASSIGNED`. Like `/status`, this dispatch endpoint
+takes **no `X-User-Id`** and no request body.
+
+**Request**
+
+```http
+POST /ride-service/api/v1/ride/42/assign HTTP/1.1
+Host: localhost:8080
+```
+
+**Response — `200 OK`**, the ride with `status: "ASSIGNED"`, `driverId` and `assignedAt` set.
+
+**Errors**
+
+| Status | When                                                                |
+| ------ | ------------------------------------------------------------------- |
+| `404`  | No ride carries that id                                             |
+| `409`  | The ride is not in `SEARCHING`, or no driver is currently available |
+
+The ride is read under a `PESSIMISTIC_WRITE` lock, so two concurrent assigns cannot both pick a
+driver for the same ride.
 
 ### PATCH /api/v1/ride/{id}/start
 

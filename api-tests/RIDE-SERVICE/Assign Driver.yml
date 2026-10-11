@@ -1,0 +1,21 @@
+info:
+  name: Assign Driver
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:8080/ride-service/api/v1/ride/1/assign
+  headers:
+    - name: X-User-Id
+      value: "1"
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUEFTU0VOR0VSIiwic3ViIjoiY2hhdGh1bm9AZ21haWwuY29tIiwiaWF0IjoxNzkxNzEyMjAxLCJleHAiOjE3OTE3OTg2MDF9.4PdFJ3P_KZEtWh2QlIW_iqSPNXYprXKa9lcioos7UroenxbGush3XRFBP7Tw15VmkNJc5Q7YhKpvktWk9PSpGg
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
