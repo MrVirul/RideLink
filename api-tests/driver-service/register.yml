@@ -1,5 +1,5 @@
 info:
-  name: register
+  name: Register
   type: http
   seq: 1
 
@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "userId": 67,
+        "userId": 1,
         "vehicleNumberPlate": "CAB-1234",
         "latitude": 6.8649,
         "longitude": 79.8997,

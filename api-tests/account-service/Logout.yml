@@ -1,0 +1,18 @@
+info:
+  name: Logout
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:8080/account-service/api/v1/auth/logout
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUEFTU0VOR0VSIiwic3ViIjoiY2hhdGh1bm9AZ21haWwuY29tIiwiaWF0IjoxNzkxNzA5MDMzLCJleHAiOjE3OTE3OTU0MzN9.HAEde7NX1iCSyFy_a3LViMLG8LcL3O4ZC-raAp-VFtx3Ief9O-wC7qw2EMeJi6QaJUy-5HbDM0cO_xTAVdD9Rw
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

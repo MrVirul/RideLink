@@ -1,0 +1,21 @@
+info:
+  name: Update Profile
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: http://localhost:8080/account-service/api/v1/accounts/profile
+  body:
+    type: json
+    data: '{"name": "Virul Max"}'
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiRFJJVkVSIiwic3ViIjoidmlydWxAZ21haWwuY29tIiwiaWF0IjoxNzkxNzA2NjMzLCJleHAiOjE3OTE3OTMwMzN9.-CABljfQvM1nYaezw-63z9bNIXZee4Qq2k_pTQ3_oeFmOtD4doXtdZ0737oaxzN7904Amoapu0oPVz2VJ4Okqg
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
